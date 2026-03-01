@@ -8,49 +8,64 @@ import java.util.List;
 
 public class Reiziger {
 
+    private int reizigerId;
+    private String voorletters;
+    private String tussenvoegsel;
+    private String achternaam;
+    private Date geboortedatum;
+
     public Reiziger() {}
 
+    public Reiziger(int reizigerId, String voorletters, String tussenvoegsel, String achternaam, Date geboortedatum) {
+        this.reizigerId = reizigerId;
+        this.voorletters = voorletters;
+        this.tussenvoegsel = tussenvoegsel;
+        this.achternaam = achternaam;
+        this.geboortedatum = geboortedatum;
+    }
+
+
     public String getVoorletters() {
-        return null;
+        return voorletters;
     }
 
     public void setVoorletters(String voorletters) {
-
+        this.voorletters = voorletters;
     }
 
     public String getTussenvoegsel() {
-        return null;
+        return tussenvoegsel;
     }
 
     public void setTussenvoegsel(String tussenvoegsel) {
-
+    this.tussenvoegsel = tussenvoegsel;
     }
 
-    public String getAchternaam() {
-        return null;
-    }
+    public String getAchternaam() {return achternaam; }
 
     public void setAchternaam(String achternaam) {
-
+        this.achternaam = achternaam;
     }
 
     public String ToString() {
-        return null;
+        return "Reiziger ID: "+reizigerId+" /nVoorletters: " +voorletters+" /nTussenvoegsel: " +tussenvoegsel+"/nAchternaam: "+achternaam+"/nGeboortedatum: "+geboortedatum;
     }
 
     public int getReizigerId() {
-        return 0;
+        return reizigerId;
     }
 
     public void setReizigerId(int reizigerId) {
-
+        this.reizigerId = reizigerId;
     }
 
     public Date getGeboortedatum() {
-        return null;
+        return geboortedatum;
     }
 
     public void setGeboortedatum(Date geboortedatum) {
+        this.geboortedatum = geboortedatum;
+
 
     }
 
