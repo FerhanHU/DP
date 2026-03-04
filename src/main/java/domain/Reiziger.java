@@ -65,8 +65,6 @@ public class Reiziger {
 
     public void setGeboortedatum(Date geboortedatum) {
         this.geboortedatum = geboortedatum;
-
-
     }
 
     public domain.Adres getAdres() {
