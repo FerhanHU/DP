@@ -13,6 +13,7 @@ public class Reiziger {
     private String tussenvoegsel;
     private String achternaam;
     private Date geboortedatum;
+    private Adres adres;
 
     public Reiziger() {}
 
@@ -24,6 +25,13 @@ public class Reiziger {
         this.geboortedatum = geboortedatum;
     }
 
+    public int getReizigerId() {
+        return reizigerId;
+    }
+
+    public void setReizigerId(int reizigerId) {
+        this.reizigerId = reizigerId;
+    }
 
     public String getVoorletters() {
         return voorletters;
@@ -47,17 +55,6 @@ public class Reiziger {
         this.achternaam = achternaam;
     }
 
-    public String ToString() {
-        return "Reiziger ID: "+reizigerId+" /nVoorletters: " +voorletters+" /nTussenvoegsel: " +tussenvoegsel+"/nAchternaam: "+achternaam+"/nGeboortedatum: "+geboortedatum;
-    }
-
-    public int getReizigerId() {
-        return reizigerId;
-    }
-
-    public void setReizigerId(int reizigerId) {
-        this.reizigerId = reizigerId;
-    }
 
     public Date getGeboortedatum() {
         return geboortedatum;
@@ -68,12 +65,18 @@ public class Reiziger {
     }
 
     public domain.Adres getAdres() {
-        return null;
+        return adres;
     }
 
     public void setAdres(domain.Adres adres) {
-
+        this.adres = adres;
     }
+
+
+    public String ToString() {
+        return "Reiziger ID: "+reizigerId+" /nVoorletters: " +voorletters+" /nTussenvoegsel: " +tussenvoegsel+"/nAchternaam: "+achternaam+"/nGeboortedatum: "+geboortedatum;
+    }
+
 
     public List<OvChipkaart> getOvChipkaart() {
         return null;
@@ -81,4 +84,6 @@ public class Reiziger {
 
     public void setOvChipkaart(List<OvChipkaart> ovChipkaart) {
     }
+
+
 }
