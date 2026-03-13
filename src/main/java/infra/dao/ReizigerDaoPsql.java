@@ -110,15 +110,28 @@ public List<Reiziger> findByGeboorteDatum(Date date) throws SQLException {
     try (PreparedStatement statement = conn.prepareStatement(e)) {
         statement.setDate(1, date);
         try (ResultSet rs = statement.executeQuery()) {
+
             while (rs.next()) {
-                reizigers.add(new Reiziger(rs.getInt("reiziger_id"),
-                        rs.getString("voorletters"),
-                        rs.getString("tussenvoegsel"),
-                        rs.getString("achternaam"),
-                        rs.getDate("geboortedatum")));
+                Reiziger reiziger = new Reiziger();
+                reiziger.setReizigerId(rs.getInt("reiziger_id"));
+                reiziger.setVoorletters(rs.getString("voorletters"));
+                reiziger.setTussenvoegsel(rs.getString("tussenvoegsel"));
+                reiziger.setAchternaam(rs.getString("achternaam"));
+                reiziger.setGeboortedatum(rs.getDate("geboortedatum"));
+
+                if (this.adao != null) {
+                    Adres a = adao.findByReiziger(reiziger);
+                    if (a != null) {
+                        a.setReiziger(reiziger);
+                        reiziger.setAdres(a);
+                    }
+                }
+
+                reizigers.add(reiziger);
             }
         }
     }
+
     return reizigers;
 }
 

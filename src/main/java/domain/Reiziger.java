@@ -73,8 +73,22 @@ public class Reiziger {
     }
 
 
-    public String ToString() {
-        return "Reiziger ID: "+reizigerId+" /nVoorletters: " +voorletters+" /nTussenvoegsel: " +tussenvoegsel+"/nAchternaam: "+achternaam+"/nGeboortedatum: "+geboortedatum;
+    public String toString() {
+        StringBuilder string = new StringBuilder();
+        string.append("Reiziger ID: ").append(reizigerId).append("\n");
+        string.append("Voorletters").append(voorletters).append("\n");
+        string.append("Tussenvoegsel").append(tussenvoegsel).append("\n");
+        string.append("Achternaam").append(achternaam).append("\n");
+        string.append("Geboortedatum").append(geboortedatum).append("\n");
+
+        if(this.getAdres() != null){
+            string.append("Adres: ").append(this.adres);
+        }
+        else {
+            string.append("Geen adres");
+        }
+
+        return string.toString();
     }
 
 

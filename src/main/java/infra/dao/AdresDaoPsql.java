@@ -111,7 +111,8 @@ public class AdresDaoPsql implements IAdresDao {
         public List<Adres> findAll () throws SQLException {
             ArrayList<Adres> adressen = new ArrayList<>();
             String f = "SELECT adres_id, postcode, huisnummer, straat, woonplaats, reiziger_id FROM adres";
-            try (PreparedStatement statement = conn.prepareStatement(f); ResultSet rs = statement.executeQuery()) {
+            try (PreparedStatement statement = conn.prepareStatement(f);
+                 ResultSet rs = statement.executeQuery()) {
                 while (rs.next()) {
                     Adres a = new Adres();
                     a.setAdresId(rs.getInt("adres_id"));
@@ -119,6 +120,12 @@ public class AdresDaoPsql implements IAdresDao {
                     a.setHuisnummer(rs.getString("huisnummer"));
                     a.setStraat(rs.getString("straat"));
                     a.setWoonplaats(rs.getString("woonplaats"));
+                    int reizigerId = rs.getInt("reiziger_id");
+
+                    if (rdao != null) {
+                        Reiziger reiziger = rdao.findById(reizigerId);
+                        a.setReiziger(reiziger);
+                    }
                     adressen.add(a);
                 }
             }
