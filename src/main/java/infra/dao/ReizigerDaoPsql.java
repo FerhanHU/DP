@@ -8,7 +8,7 @@ import java.util.List;
 
 public class ReizigerDaoPsql implements IReizigerDao {
 
-    private Connection conn = null;
+    private Connection conn;
     private IOvChipkaartDao ovChipkaartDao;
     private IAdresDao adao;
 
@@ -36,6 +36,13 @@ public class ReizigerDaoPsql implements IReizigerDao {
             if (reiziger.getAdres() != null && this.adao != null) {
                 this.adao.save(reiziger.getAdres());
             }
+
+            if (reiziger.getOvChipkaart() != null && !reiziger.getOvChipkaart().isEmpty() && ovChipkaartDao != null){
+                for (OvChipkaart kaart : reiziger.getOvChipkaart()) {
+                    this.ovChipkaartDao.save(kaart);
+                    reiziger.addOvChipkaart(kaart);
+                }
+            }
         }
 
     }
@@ -53,28 +60,45 @@ public class ReizigerDaoPsql implements IReizigerDao {
             statement.setString(3, reiziger.getAchternaam());
             statement.setDate(4, reiziger.getGeboortedatum());
             statement.setInt(5, reiziger.getReizigerId());
+
+            if (reiziger.getAdres() != null && this.adao != null) {
+                this.adao.update(reiziger.getAdres());
+            }
+
+            if (!reiziger.getOvChipkaart().isEmpty() && ovChipkaartDao != null) {
+                for (OvChipkaart kaart : reiziger.getOvChipkaart()) {
+                    ovChipkaartDao.update(kaart);
+                }
+            }
             statement.executeUpdate();
-        }
-        if (reiziger.getAdres() != null && this.adao != null) {
-            this.adao.update(reiziger.getAdres());
         }
     }
 
     @Override
     public void delete(Reiziger reiziger) throws SQLException {
+        String c = "DELETE FROM reiziger WHERE reiziger_id = ?";
+
         if (reiziger.getAdres() != null && this.adao != null) {
             this.adao.delete(reiziger.getAdres());
         }
-        String c = "DELETE FROM reiziger WHERE reiziger_id = ?";
+
+        if (this.ovChipkaartDao != null && !reiziger.getOvChipkaart().isEmpty()) {
+            for (OvChipkaart kaart : reiziger.getOvChipkaart()){
+                this.ovChipkaartDao.delete(kaart);
+                reiziger.removeOvChipkaart(kaart);
+            }
+        }
         try (PreparedStatement statement = conn.prepareStatement(c)) {
             statement.setInt(1, reiziger.getReizigerId());
             statement.executeUpdate();
         }
+
     }
 
     @Override
     public Reiziger findById(int id) throws SQLException {
         String d = "SELECT reiziger_id, voorletters, tussenvoegsel, achternaam, geboortedatum FROM reiziger WHERE reiziger_id = ?";
+
         try (PreparedStatement statement = conn.prepareStatement(d)) {
             statement.setInt(1, id);
             try (ResultSet rs = statement.executeQuery()) {
@@ -91,6 +115,16 @@ public class ReizigerDaoPsql implements IReizigerDao {
                         if (a != null) {
                             a.setReiziger(reiziger);
                             reiziger.setAdres(a);
+                        }
+                    }
+
+                    if (this.ovChipkaartDao != null){
+                        List<OvChipkaart> kaarten = this.ovChipkaartDao.findByReiziger(reiziger);
+                        if (kaarten != null && !kaarten.isEmpty()) {
+                            for (OvChipkaart kaart : kaarten){
+                                kaart.setReiziger(reiziger);
+                            }
+                            reiziger.setOvChipkaart(kaarten);
                         }
                     }
                 return reiziger;
@@ -127,6 +161,10 @@ public List<Reiziger> findByGeboorteDatum(Date date) throws SQLException {
                     }
                 }
 
+                if (ovChipkaartDao != null) {
+                    reiziger.setOvChipkaart(ovChipkaartDao.findByReiziger(reiziger));
+                }
+
                 reizigers.add(reiziger);
             }
         }
@@ -153,11 +191,16 @@ public List<Reiziger> findAll() throws SQLException {
                     rs.getString("achternaam"),
                     rs.getDate("geboortedatum")
             );
+
             Adres adres = adao.findByReiziger(r);
             if (adres != null) {
                 adres.setReiziger(r);
             }
             r.setAdres(adres);
+
+            if (this.ovChipkaartDao != null){
+                r.setOvChipkaart(this.ovChipkaartDao.findByReiziger(r));
+            }
             reizigers.add(r);
         }
     }

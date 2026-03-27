@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Reiziger {
@@ -14,6 +15,7 @@ public class Reiziger {
     private String achternaam;
     private Date geboortedatum;
     private Adres adres;
+    private List<OvChipkaart> kaarten;
 
     public Reiziger() {}
 
@@ -88,16 +90,39 @@ public class Reiziger {
             string.append("Geen adres");
         }
 
+        if (this.getOvChipkaart() != null && !this.getOvChipkaart().isEmpty()) {
+            for (OvChipkaart kaart : this.getOvChipkaart()) {
+                string.append("OvChipkaart").append(kaart).append("\n");
+            }
+        }
+        else{
+            string.append("Geen OV-Chipkaart\n");
+        }
         return string.toString();
     }
 
 
     public List<OvChipkaart> getOvChipkaart() {
-        return null;
+        return this.kaarten;
     }
+
+    public boolean addOvChipkaart(OvChipkaart kaart){
+        if (!kaarten.contains(kaart))  {
+            return kaarten.add(kaart);
+        }
+        return false;
+    }
+
+
+    public boolean removeOvChipkaart(OvChipkaart kaart){
+        if (kaarten.contains(kaart)){
+            return kaarten.remove(kaart);
+        }
+        return false;
+    }
+
 
     public void setOvChipkaart(List<OvChipkaart> ovChipkaart) {
+        this.kaarten = ovChipkaart;
     }
-
-
 }

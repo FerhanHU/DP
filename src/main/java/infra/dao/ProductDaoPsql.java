@@ -13,6 +13,7 @@ public class ProductDaoPsql implements IProductDao {
 
     @Override
     public void save(Product product) throws SQLException {
+
     }
 
     @Override
