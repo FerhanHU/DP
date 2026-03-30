@@ -122,8 +122,8 @@ public class p4TestOvChipkaartDao {
                 () -> assertEquals(Date.valueOf("2020-01-31"), ovChipkaart.getGeldigTot())
         );
 
-        ovChipkaart.setKlasse(BigInteger.TWO);
-        ovChipkaart.setSaldo(new BigDecimal("12.80"));
+        ovChipkaart.setKlasse(2);
+        ovChipkaart.setSaldo(12);
         ovChipkaart.setGeldigTot(Date.valueOf("2010-03-03"));
         ovChipkaart.setReiziger(reizigerDao.findById(4));
 

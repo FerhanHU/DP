@@ -31,17 +31,17 @@ public class p4OvChipkaartTest {
     @Test
     void testKlasse() {
         OvChipkaart ovChipkaart = new OvChipkaart();
-        ovChipkaart.setKlasse(BigInteger.TWO);
+        ovChipkaart.setKlasse(2);
 
-        assertEquals(BigInteger.TWO, ovChipkaart.getKlasse());
+        assertEquals(2, ovChipkaart.getKlasse());
     }
 
     @Test
     void testSaldo() {
         OvChipkaart ovChipkaart = new OvChipkaart();
-        ovChipkaart.setSaldo(new BigDecimal(5));
+        ovChipkaart.setSaldo(5);
 
-        assertEquals(new BigDecimal(5), ovChipkaart.getSaldo());
+        assertEquals(5, ovChipkaart.getSaldo());
     }
 
     @Test

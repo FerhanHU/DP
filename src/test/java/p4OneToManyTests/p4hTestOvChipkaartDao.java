@@ -120,8 +120,8 @@ public class p4hTestOvChipkaartDao {
                 () -> assertEquals(4, ovChipkaart.getReiziger().getReizigerId())
         );
 
-        ovChipkaart.setKlasse(BigInteger.TWO);
-        ovChipkaart.setSaldo(new BigDecimal("12.80"));
+        ovChipkaart.setKlasse(2);
+        ovChipkaart.setSaldo(13);
         ovChipkaart.setGeldigTot(Date.valueOf("2010-03-03"));
 
         ovChipkaartDao.update(ovChipkaart);

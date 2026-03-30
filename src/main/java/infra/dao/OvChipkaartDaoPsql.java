@@ -3,7 +3,6 @@ package infra.dao;
 import domain.*;
 import domain.IReizigerDao;
 
-import java.math.BigInteger;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,12 +11,10 @@ public class OvChipkaartDaoPsql implements IOvChipkaartDao {
 
     private Connection connection;
     private IReizigerDao rdao;
+    private IProductDao productDao;
 
     public OvChipkaartDaoPsql(Connection connection) {
         this.connection = connection;
-        ReizigerDaoPsql reizigerDaoPsql = new ReizigerDaoPsql(connection);
-        reizigerDaoPsql.setOvChipkaartDao(this);
-        this.rdao = reizigerDaoPsql;
     }
 
     public void setReizigerDao(IReizigerDao rdao) {
@@ -35,8 +32,16 @@ public class OvChipkaartDaoPsql implements IOvChipkaartDao {
             statement.setInt(5, ovChipkaart.getReiziger().getReizigerId());
 
             statement.executeUpdate();
-            statement.close();
-
+        }
+        if (ovChipkaart.getProducten() != null) {
+            String relQuery = "INSERT INTO ov_chipkaart_product (kaart_nummer, product_nummer) VALUES (?, ?)";
+            for (Product p : ovChipkaart.getProducten()) {
+                try (PreparedStatement relStmt = connection.prepareStatement(relQuery)) {
+                    relStmt.setInt(1, ovChipkaart.getKaartNummer());
+                    relStmt.setInt(2, p.getProductNummer());
+                    relStmt.executeUpdate();
+                }
+            }
         }
     }
 
@@ -52,34 +57,66 @@ public class OvChipkaartDaoPsql implements IOvChipkaartDao {
             statement.executeUpdate();
             statement.close();
         }
+        String deleteRel = "DELETE FROM ov_chipkaart_product WHERE kaart_nummer = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(deleteRel)) {
+            stmt.setInt(1, ovChipkaart.getKaartNummer());
+            stmt.executeUpdate();
+        }
+
+        if (ovChipkaart.getProducten() != null) {
+            String insertRel = "INSERT INTO ov_chipkaart_product (kaart_nummer, product_nummer) VALUES (?, ?)";
+            for (Product p : ovChipkaart.getProducten()) {
+                try (PreparedStatement stmt = connection.prepareStatement(insertRel)) {
+                    stmt.setInt(1, ovChipkaart.getKaartNummer());
+                    stmt.setInt(2, p.getProductNummer());
+                    stmt.executeUpdate();
+                }
+            }
+
+        }
     }
 
     @Override
     public void delete(OvChipkaart ovChipkaart) throws SQLException {
+        String relQuery = "DELETE FROM ov_chipkaart_product WHERE kaart_nummer = ?";
+        try (PreparedStatement stmt = connection.prepareStatement(relQuery)) {
+            stmt.setInt(1, ovChipkaart.getKaartNummer());
+            stmt.executeUpdate();
+        }
         String c = "DELETE FROM ov_chipkaart WHERE kaart_nummer = ?";
-        try (PreparedStatement statement = connection.prepareStatement(c)){
+        try (PreparedStatement statement = connection.prepareStatement(c)) {
             statement.setInt(1, ovChipkaart.getKaartNummer());
             statement.executeUpdate();
             statement.close();
         }
+
     }
 
     @Override
     public OvChipkaart findById(int id) throws SQLException {
         String d = "SELECT kaart_nummer, geldig_tot, klasse, saldo, reiziger_id  FROM ov_chipkaart WHERE kaart_nummer = ?";
         OvChipkaart ovChipkaart = null;
-        try (PreparedStatement statement = connection.prepareStatement(d)){
+        try (PreparedStatement statement = connection.prepareStatement(d)) {
             statement.setInt(1, id);
             try (ResultSet rs = statement.executeQuery()) {
-                if (rs.next()){
+                if (rs.next()) {
                     ovChipkaart = new OvChipkaart();
                     ovChipkaart.setKaartNummer(rs.getInt("kaart_nummer"));
                     ovChipkaart.setGeldigTot(rs.getDate("geldig_tot"));
                     ovChipkaart.setKlasse(rs.getInt("klasse"));
                     ovChipkaart.setSaldo(rs.getDouble("saldo"));
 
-                    if (rdao != null){
+                    if (rdao != null) {
                         ovChipkaart.setReiziger(rdao.findById(rs.getInt("reiziger_id")));
+                    }
+
+                    if (productDao != null) {
+                        List<Product> producten = productDao.findByOvChipkaart(ovChipkaart);
+                        ovChipkaart.setProducten(producten);
+
+                        for (Product p : producten) {
+                            p.addOvChipkaart(ovChipkaart);
+                        }
                     }
                 }
             }
@@ -87,10 +124,11 @@ public class OvChipkaartDaoPsql implements IOvChipkaartDao {
         return ovChipkaart;
     }
 
+
     @Override
     public List<OvChipkaart> findByReiziger(Reiziger reiziger) throws SQLException {
         List<OvChipkaart> kaarten = new ArrayList<>();
-        String e = "SELECT kaart_nummer, geldig_tot, klasse, saldo, reiziger_id from ov_chipkaart WHERE reiziger_id = ?";
+        String e = "SELECT kaart_nummer, geldig_tot, klasse, saldo, reiziger_id FROM ov_chipkaart WHERE reiziger_id = ?";
 
         try (PreparedStatement statement = connection.prepareStatement(e)) {
             statement.setInt(1, reiziger.getReizigerId());
@@ -103,6 +141,16 @@ public class OvChipkaartDaoPsql implements IOvChipkaartDao {
                     a.setKlasse(rs.getInt("klasse"));
                     a.setSaldo(rs.getDouble("saldo"));
                     a.setReiziger(reiziger);
+
+
+                    if (productDao != null) {
+                        List<Product> producten = productDao.findByOvChipkaart(a);
+                        a.setProducten(producten);
+
+                        for (Product p : producten) {
+                            p.addOvChipkaart(a);
+                        }
+                    }
                     kaarten.add(a);
                 }
             }
@@ -116,15 +164,13 @@ public class OvChipkaartDaoPsql implements IOvChipkaartDao {
         List<Reiziger> reizigers = this.rdao.findAll();
 
         for (Reiziger reiziger : reizigers) {
-            List<OvChipkaart> kaarten = reiziger.getOvChipkaart();
-            if(kaarten !=null) {
+            List<OvChipkaart> kaarten = findByReiziger(reiziger);
                 alleKaarten.addAll(kaarten);
             }
-        }
         return alleKaarten;
     }
 
     public void setProductDao(IProductDao productDao) {
-
+        this.productDao = productDao;
     }
 }

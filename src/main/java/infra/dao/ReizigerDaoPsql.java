@@ -31,16 +31,14 @@ public class ReizigerDaoPsql implements IReizigerDao {
             statement.setDate(5, reiziger.getGeboortedatum());
 
             statement.executeUpdate();
-            statement.close();
 
             if (reiziger.getAdres() != null && this.adao != null) {
                 this.adao.save(reiziger.getAdres());
             }
 
-            if (reiziger.getOvChipkaart() != null && !reiziger.getOvChipkaart().isEmpty() && ovChipkaartDao != null){
+            if (reiziger.getOvChipkaart() != null && !reiziger.getOvChipkaart().isEmpty() && ovChipkaartDao != null) {
                 for (OvChipkaart kaart : reiziger.getOvChipkaart()) {
                     this.ovChipkaartDao.save(kaart);
-                    reiziger.addOvChipkaart(kaart);
                 }
             }
         }
@@ -49,11 +47,7 @@ public class ReizigerDaoPsql implements IReizigerDao {
 
     @Override
     public void update(Reiziger reiziger) throws SQLException {
-        String b = """
-                UPDATE reiziger
-                SET voorletters = ?, tussenvoegsel = ?, achternaam = ?, geboortedatum = ?
-                WHERE reiziger_id = ?
-                """;
+        String b = "UPDATE reiziger SET voorletters = ?, tussenvoegsel = ?, achternaam = ?, geboortedatum = ? WHERE reiziger_id = ?";
         try (PreparedStatement statement = conn.prepareStatement(b)) {
             statement.setString(1, reiziger.getVoorletters());
             statement.setString(2, reiziger.getTussenvoegsel());
@@ -83,7 +77,7 @@ public class ReizigerDaoPsql implements IReizigerDao {
         }
 
         if (this.ovChipkaartDao != null && !reiziger.getOvChipkaart().isEmpty()) {
-            for (OvChipkaart kaart : reiziger.getOvChipkaart()){
+            for (OvChipkaart kaart : reiziger.getOvChipkaart()) {
                 this.ovChipkaartDao.delete(kaart);
                 reiziger.removeOvChipkaart(kaart);
             }
@@ -118,101 +112,95 @@ public class ReizigerDaoPsql implements IReizigerDao {
                         }
                     }
 
-                    if (this.ovChipkaartDao != null){
+                    if (this.ovChipkaartDao != null) {
                         List<OvChipkaart> kaarten = this.ovChipkaartDao.findByReiziger(reiziger);
                         if (kaarten != null && !kaarten.isEmpty()) {
-                            for (OvChipkaart kaart : kaarten){
+                            for (OvChipkaart kaart : kaarten) {
                                 kaart.setReiziger(reiziger);
                             }
                             reiziger.setOvChipkaart(kaarten);
                         }
                     }
-                return reiziger;
+                    return reiziger;
+                }
             }
         }
+        return null;
     }
-    return null;
-}
 
-@Override
-public List<Reiziger> findByGeboorteDatum(Date date) throws SQLException {
-    List<Reiziger> reizigers = new ArrayList<>();
-    String e = """
-            SELECT reiziger_id, voorletters, tussenvoegsel, achternaam, geboortedatum
-            FROM reiziger WHERE geboortedatum = ?
-            """;
-    try (PreparedStatement statement = conn.prepareStatement(e)) {
-        statement.setDate(1, date);
-        try (ResultSet rs = statement.executeQuery()) {
+    @Override
+    public List<Reiziger> findByGeboorteDatum(Date date) throws SQLException {
+        List<Reiziger> reizigers = new ArrayList<>();
+        String e = "SELECT reiziger_id, voorletters, tussenvoegsel, achternaam, geboortedatum FROM reiziger WHERE geboortedatum = ? ";
+        try (PreparedStatement statement = conn.prepareStatement(e)) {
+            statement.setDate(1, date);
+            try (ResultSet rs = statement.executeQuery()) {
 
-            while (rs.next()) {
-                Reiziger reiziger = new Reiziger();
-                reiziger.setReizigerId(rs.getInt("reiziger_id"));
-                reiziger.setVoorletters(rs.getString("voorletters"));
-                reiziger.setTussenvoegsel(rs.getString("tussenvoegsel"));
-                reiziger.setAchternaam(rs.getString("achternaam"));
-                reiziger.setGeboortedatum(rs.getDate("geboortedatum"));
+                while (rs.next()) {
+                    Reiziger reiziger = new Reiziger();
+                    reiziger.setReizigerId(rs.getInt("reiziger_id"));
+                    reiziger.setVoorletters(rs.getString("voorletters"));
+                    reiziger.setTussenvoegsel(rs.getString("tussenvoegsel"));
+                    reiziger.setAchternaam(rs.getString("achternaam"));
+                    reiziger.setGeboortedatum(rs.getDate("geboortedatum"));
 
-                if (this.adao != null) {
-                    Adres a = adao.findByReiziger(reiziger);
-                    if (a != null) {
-                        a.setReiziger(reiziger);
-                        reiziger.setAdres(a);
+                    if (this.adao != null) {
+                        Adres a = adao.findByReiziger(reiziger);
+                        if (a != null) {
+                            a.setReiziger(reiziger);
+                            reiziger.setAdres(a);
+                        }
                     }
-                }
 
-                if (ovChipkaartDao != null) {
-                    reiziger.setOvChipkaart(ovChipkaartDao.findByReiziger(reiziger));
-                }
+                    if (ovChipkaartDao != null) {
+                        reiziger.setOvChipkaart(ovChipkaartDao.findByReiziger(reiziger));
+                    }
 
-                reizigers.add(reiziger);
+                    reizigers.add(reiziger);
+                }
             }
         }
+
+        return reizigers;
     }
 
-    return reizigers;
-}
+    @Override
+    public List<Reiziger> findAll() throws SQLException {
+        List<Reiziger> reizigers = new ArrayList<>();
+        String f = "SELECT reiziger_id, voorletters, tussenvoegsel, achternaam, geboortedatum FROM reiziger";
+        try (PreparedStatement statement = conn.prepareStatement(f);
+             ResultSet rs = statement.executeQuery()) {
+            while (rs.next()) {
 
-@Override
-public List<Reiziger> findAll() throws SQLException {
-    ArrayList<Reiziger> reizigers = new ArrayList<Reiziger>();
-    String f = """
-            SELECT reiziger_id, voorletters, tussenvoegsel, achternaam, geboortedatum
-            FROM reiziger
-            """;
-    try (PreparedStatement statement = conn.prepareStatement(f);
-         ResultSet rs = statement.executeQuery()) {
-        while (rs.next()) {
+                Reiziger r = new Reiziger();
+                r.setReizigerId(rs.getInt("reiziger_id"));
+                r.setVoorletters(rs.getString("voorletters"));
+                r.setTussenvoegsel(rs.getString("tussenvoegsel"));
+                r.setAchternaam(rs.getString("achternaam"));
+                r.setGeboortedatum(rs.getDate("geboortedatum"));
 
-            Reiziger r = new Reiziger(
-                    rs.getInt("reiziger_id"),
-                    rs.getString("voorletters"),
-                    rs.getString("tussenvoegsel"),
-                    rs.getString("achternaam"),
-                    rs.getDate("geboortedatum")
-            );
+                Adres adres = adao.findByReiziger(r);
+                if (adres != null) {
+                    adres.setReiziger(r);
+                }
+                r.setAdres(adres);
 
-            Adres adres = adao.findByReiziger(r);
-            if (adres != null) {
-                adres.setReiziger(r);
+                if (this.ovChipkaartDao != null) {
+                    r.setOvChipkaart(this.ovChipkaartDao.findByReiziger(r));
+                }
+
+                reizigers.add(r);
             }
-            r.setAdres(adres);
-
-            if (this.ovChipkaartDao != null){
-                r.setOvChipkaart(this.ovChipkaartDao.findByReiziger(r));
-            }
-            reizigers.add(r);
         }
+        return reizigers;
     }
-    return reizigers;
-}
 
-public void setAdresDao(IAdresDao adao) {
-    this.adao = adao;
-}
-
-public void setOvChipkaartDao(IOvChipkaartDao ovChipkaartDaoPsql) {
-    this.ovChipkaartDao = ovChipkaartDaoPsql;
-}
+    public void setAdresDao(IAdresDao adao) {
+        this.adao = adao;
     }
+
+    public void setOvChipkaartDao(IOvChipkaartDao ovChipkaartDaoPsql) {
+        this.ovChipkaartDao = ovChipkaartDaoPsql;
+    }
+}
 

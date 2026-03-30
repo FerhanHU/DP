@@ -117,9 +117,9 @@ public class p4hTestReizigerDao {
                 () -> assertEquals(new BigDecimal("2.50"), ovChipkaart.getSaldo())
         );
 
-        ovChipkaart.setKlasse(BigInteger.TWO);
+        ovChipkaart.setKlasse(2);
         ovChipkaart.setGeldigTot(Date.valueOf("2021-01-01"));
-        ovChipkaart.setSaldo(new BigDecimal("-1.50"));
+        ovChipkaart.setSaldo(-1.50);
         reizigerDao.update(reiziger);
 
         OvChipkaart updatedOvChipkaart = ovChipkaartDao.findById(68514);

@@ -17,14 +17,11 @@ public class AdresDaoPsql implements IAdresDao {
 
     public AdresDaoPsql(Connection conn) {
         this.conn = conn;
-        ReizigerDaoPsql reizigerDaoPsql = new ReizigerDaoPsql(conn);
-        reizigerDaoPsql.setAdresDao(this);
-        this.rdao = reizigerDaoPsql;
     }
 
     @Override
     public void save(Adres adres) throws SQLException {
-        String a = "INSERT INTO adres (adres_id, postcode, huisnummer, straat, woonplaats, reiziger_id) VALUES (?, ?, ?, ?, ?, ?) ";
+         String a = "INSERT INTO adres (adres_id, postcode, huisnummer, straat, woonplaats, reiziger_id) VALUES (?, ?, ?, ?, ?, ?) ";
         try (PreparedStatement statement = conn.prepareStatement(a)) {
 
             statement.setInt(1, adres.getAdresId());
@@ -66,7 +63,7 @@ public class AdresDaoPsql implements IAdresDao {
 
     @Override
     public Adres findById(int id) throws SQLException {
-        String d = "SELECT * FROM adres WHERE adres_id = ?";
+        String d = "SELECT adres_id, postcode, huisnummer, straat, woonplaats, reiziger_id FROM adres WHERE adres_id = ?";
         Adres adres = null;
         try (PreparedStatement statement = conn.prepareStatement(d)) {
             statement.setInt(1, id);
@@ -78,6 +75,11 @@ public class AdresDaoPsql implements IAdresDao {
                     adres.setHuisnummer(rs.getString("huisnummer"));
                     adres.setStraat(rs.getString("straat"));
                     adres.setWoonplaats(rs.getString("woonplaats"));
+
+                    if (this.rdao != null) {
+                        Reiziger reiziger = this.rdao.findById(rs.getInt("reiziger_id"));
+                        adres.setReiziger(reiziger);
+}
                 }
             }
         }
@@ -98,8 +100,6 @@ public class AdresDaoPsql implements IAdresDao {
                     adres.setStraat(rs.getString("straat"));
                     adres.setWoonplaats(rs.getString("woonplaats"));
                     adres.setReiziger(reiziger);
-                    rs.close();
-                    statement.close();
 
                     return adres;
 
@@ -121,5 +121,9 @@ public class AdresDaoPsql implements IAdresDao {
             }
         }
         return adressen;
+    }
+
+    public void setReizigerDao(IReizigerDao rdao){
+        this.rdao = rdao;
     }
 }

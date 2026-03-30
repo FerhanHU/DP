@@ -119,9 +119,9 @@ public class p4TestReizigerDao {
                 () -> assertEquals(new BigDecimal("2.50"), ovChipkaart.getSaldo())
         );
 
-        ovChipkaart.setKlasse(BigInteger.TWO);
+        ovChipkaart.setKlasse(2);
         ovChipkaart.setGeldigTot(Date.valueOf("2021-01-01"));
-        ovChipkaart.setSaldo(new BigDecimal("-1.50"));
+        ovChipkaart.setSaldo(5);
         ovChipkaart.setReiziger(reiziger);
         reizigerDao.update(reiziger);
 

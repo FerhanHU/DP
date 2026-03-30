@@ -19,8 +19,8 @@ public class OvChipkaartUtils {
         OvChipkaart ovChipkaart = new OvChipkaart();
 
         ovChipkaart.setGeldigTot(getRandomGeldigTot());
-        ovChipkaart.setSaldo(getRandomSaldo());
-        ovChipkaart.setKlasse(getRandomKlasse());
+        ovChipkaart.setSaldo(10);
+        ovChipkaart.setKlasse(10);
         ovChipkaart.setKaartNummer(id);
 
         return ovChipkaart;

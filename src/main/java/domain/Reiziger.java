@@ -78,25 +78,25 @@ public class Reiziger {
     public String toString() {
         StringBuilder string = new StringBuilder();
         string.append("Reiziger ID: ").append(reizigerId).append("\n");
-        string.append("Voorletters").append(voorletters).append("\n");
-        string.append("Tussenvoegsel").append(tussenvoegsel).append("\n");
-        string.append("Achternaam").append(achternaam).append("\n");
-        string.append("Geboortedatum").append(geboortedatum).append("\n");
+        string.append("Voorletters: ").append(voorletters).append("\n");
+        string.append("Tussenvoegsel: ").append(tussenvoegsel).append("\n");
+        string.append("Achternaam: ").append(achternaam).append("\n");
+        string.append("Geboortedatum: ").append(geboortedatum).append("\n");
 
         if(this.getAdres() != null){
-            string.append("Adres: ").append(this.adres);
+            string.append("\nAdres van ").append(this.adres);
         }
         else {
-            string.append("Geen adres");
+            string.append("\nHeeft geen adres");
         }
 
         if (this.getOvChipkaart() != null && !this.getOvChipkaart().isEmpty()) {
             for (OvChipkaart kaart : this.getOvChipkaart()) {
-                string.append("OvChipkaart").append(kaart).append("\n");
+                string.append("\nHeeft een OvChipkaart").append(kaart).append("\n");
             }
         }
         else{
-            string.append("Geen OV-Chipkaart\n");
+            string.append("\nHeeft geen OV-Chipkaart\n");
         }
         return string.toString();
     }
@@ -106,19 +106,19 @@ public class Reiziger {
         return this.kaarten;
     }
 
-    public boolean addOvChipkaart(OvChipkaart kaart){
-        if (!kaarten.contains(kaart))  {
-            return kaarten.add(kaart);
+    public boolean addOvChipkaart(OvChipkaart kaart){ // deze functie voegt een kaart toe
+        if (!kaarten.contains(kaart))  { // controleert of de lijst met kaarten deze kaart heeft
+            return kaarten.add(kaart); // voegt kaart toe aan de lijst.
         }
-        return false;
+        return false; // als het toevoegen van de kaart niet lukt
     }
 
 
     public boolean removeOvChipkaart(OvChipkaart kaart){
-        if (kaarten.contains(kaart)){
-            return kaarten.remove(kaart);
+        if (kaarten.contains(kaart)){ //checkt of de lijst met kaarten deze kaart bevat
+            return kaarten.remove(kaart); // haal kaart uit de lijst met kaarten
         }
-        return false;
+        return false; //
     }
 
 

@@ -69,6 +69,6 @@ public class Adres {
 
     @Override
     public String toString() {
-        return "Reiziger ID: "+ reiziger.getReizigerId() + "\nAdres ID: " + adresId + "\n Postcode: " + postcode + "\n Huisnummer: " + huisnummer + "\n Straat: " + straat + "\n Woonplaats: " + woonplaats;
+        return "Reiziger ID: "+ (reiziger != null ? String.valueOf(reiziger.getReizigerId()) : "geen reiziger") + "\nAdres ID: " + adresId + "\n Postcode: " + postcode + "\n Huisnummer: " + huisnummer + "\n Straat: " + straat + "\n Woonplaats: " + woonplaats;
     }
 }
