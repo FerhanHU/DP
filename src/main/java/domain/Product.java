@@ -94,8 +94,13 @@ public class Product {
 
         return this.productNummer == other.productNummer &&
                 this.prijs == other.prijs &&
-                (Objects.equals(this.naam, other.naam)) &&
-                (Objects.equals(this.beschrijving, other.beschrijving));
+                Objects.equals(this.naam, other.naam) &&
+                Objects.equals(this.beschrijving, other.beschrijving);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(productNummer, naam, beschrijving, prijs);
     }
 
     @Override

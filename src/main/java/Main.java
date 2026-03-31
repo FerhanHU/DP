@@ -13,7 +13,7 @@ import java.util.List;
 
 
 public class Main {
-    static void main() throws SQLException {
+      static void main() throws SQLException {
 
         try {
 
@@ -140,9 +140,3 @@ public class Main {
         }
     }
 }
-//
-
-
-
-
-//

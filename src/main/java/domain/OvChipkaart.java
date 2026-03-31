@@ -105,11 +105,19 @@ public class OvChipkaart {
 
         OvChipkaart other = (OvChipkaart) o;
 
-        return this.kaartNummer == other.kaartNummer &&
-                this.klasse == other.klasse &&
-                this.saldo == other.saldo &&
-                (Objects.equals(this.geldigTot, other.geldigTot));
+        return kaartNummer == other.kaartNummer &&
+                klasse == other.klasse &&
+                Double.compare(saldo, other.saldo) == 0 &&
+                Objects.equals(geldigTot, other.geldigTot) &&
+                Objects.equals(reiziger, other.reiziger) &&
+                Objects.equals(producten, other.producten);
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(kaartNummer, klasse, saldo, geldigTot, reiziger, producten);
+    }
+
     @Override
     public String toString() {
         StringBuilder string = new StringBuilder();

@@ -27,16 +27,6 @@ public class ProductDaoPsql implements IProductDao {
             statement.executeUpdate();
             statement.close();
         }
-        if (product.getOvChipKaarten() != null) {
-            String relQuery = "INSERT INTO ov_chipkaart_product (kaart_nummer, product_nummer) VALUES (?, ?)";
-            for (OvChipkaart ov : product.getOvChipKaarten()) {
-                try (PreparedStatement relStmt = connection.prepareStatement(relQuery)) {
-                    relStmt.setInt(1, ov.getKaartNummer());
-                    relStmt.setInt(2, product.getProductNummer());
-                    relStmt.executeUpdate();
-                }
-            }
-        }
     }
 
     @Override
@@ -50,45 +40,21 @@ public class ProductDaoPsql implements IProductDao {
             statement.close();
         }
 
-        String deleteRel = "DELETE FROM ov_chipkaart_product WHERE product_nummer = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(deleteRel)) {
-            stmt.setInt(1, product.getProductNummer());
-            stmt.executeUpdate();
-        }
-
-        if (product.getOvChipKaarten() != null) {
-            String insertRel = "INSERT INTO ov_chipkaart_product (kaart_nummer, product_nummer) VALUES (?, ?)";
-            for (OvChipkaart ov : product.getOvChipKaarten()) {
-                try (PreparedStatement stmt = connection.prepareStatement(insertRel)) {
-                    stmt.setInt(1, ov.getKaartNummer());
-                    stmt.setInt(2, product.getProductNummer());
-                    stmt.executeUpdate();
-                }
-            }
-        }
-
     }
 
     @Override
     public void delete(Product product) throws SQLException {
-        String relQuery = "DELETE FROM ov_chipkaart_product WHERE product_nummer = ?";
-        try (PreparedStatement relStmt = connection.prepareStatement(relQuery)) {
-            relStmt.setInt(1, product.getProductNummer());
-            relStmt.executeUpdate();
-        }
-
         String query = "DELETE FROM product WHERE product_nummer = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setInt(1, product.getProductNummer());
             statement.executeUpdate();
             statement.close();
         }
-
     }
 
     @Override
     public Product findById(int id) throws SQLException {
-        String query = "SELECT product_nummer, naam, beschrijving, prijs FROM product WHERE product_nummer = ? ";
+        String query = "SELECT product_nummer, naam, beschrijving, prijs FROM product WHERE product_nummer = ?";
         Product product = null;
         try (PreparedStatement statement = connection.prepareStatement(query)) {
             statement.setInt(1, id);
@@ -99,21 +65,34 @@ public class ProductDaoPsql implements IProductDao {
                     product.setNaam(rs.getString("naam"));
                     product.setBeschrijving(rs.getString("beschrijving"));
                     product.setPrijs(rs.getInt("prijs"));
+                }
+            }
+        }
 
-                }}}
         if (product != null && odao != null) {
             String ovQuery = "SELECT kaart_nummer FROM ov_chipkaart_product WHERE product_nummer = ?";
+            List<OvChipkaart> kaarten = new ArrayList<>();
+
             try (PreparedStatement ovStatement = connection.prepareStatement(ovQuery)) {
                 ovStatement.setInt(1, product.getProductNummer());
                 try (ResultSet ovRs = ovStatement.executeQuery()) {
                     while (ovRs.next()) {
                         int kaartNummer = ovRs.getInt("kaart_nummer");
+
                         OvChipkaart ov = odao.findById(kaartNummer);
+
                         if (ov != null) {
-                            product.addOvChipkaart(ov);
-                            if (!ov.getProducten().contains(product)){
+                            kaarten.add(ov);
+
+                            if (!ov.getProducten().contains(product)) {
                                 ov.addProduct(product);
-                            }}}}}}
+                            }
+                        }
+                    }
+                }
+            }
+            product.setOvChipKaarten(kaarten);
+        }
 
         return product;
     }
