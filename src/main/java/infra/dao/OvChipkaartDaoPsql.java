@@ -57,11 +57,6 @@ public class OvChipkaartDaoPsql implements IOvChipkaartDao {
             statement.executeUpdate();
             statement.close();
         }
-        String deleteRel = "DELETE FROM ov_chipkaart_product WHERE kaart_nummer = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(deleteRel)) {
-            stmt.setInt(1, ovChipkaart.getKaartNummer());
-            stmt.executeUpdate();
-        }
 
         if (ovChipkaart.getProducten() != null) {
             String insertRel = "INSERT INTO ov_chipkaart_product (kaart_nummer, product_nummer) VALUES (?, ?)";
